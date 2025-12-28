@@ -6,7 +6,9 @@ import 'package:pilipala/http/member.dart';
 import 'package:pilipala/utils/storage.dart';
 
 class PrivacySetting extends StatefulWidget {
-  const PrivacySetting({super.key});
+  const PrivacySetting({super.key, this.isEmbedded = false});
+
+  final bool isEmbedded;
 
   @override
   State<PrivacySetting> createState() => _PrivacySettingState();
@@ -31,16 +33,11 @@ class _PrivacySettingState extends State<PrivacySetting> {
         .textTheme
         .labelMedium!
         .copyWith(color: Theme.of(context).colorScheme.outline);
-    return Scaffold(
-      appBar: AppBar(
-        centerTitle: false,
-        titleSpacing: 0,
-        title: Text(
-          '隐私设置',
-          style: Theme.of(context).textTheme.titleMedium,
-        ),
-      ),
-      body: Column(
+
+    // 构建页面内容
+    Widget content = Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: ListView(
         children: [
           ListTile(
             onTap: () {
@@ -67,5 +64,22 @@ class _PrivacySettingState extends State<PrivacySetting> {
         ],
       ),
     );
+
+    // 如果是嵌入模式，直接返回内容；否则返回完整页面
+    if (widget.isEmbedded) {
+      return content;
+    } else {
+      return Scaffold(
+        appBar: AppBar(
+          centerTitle: false,
+          titleSpacing: 0,
+          title: Text(
+            '隐私设置',
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
+        ),
+        body: content,
+      );
+    }
   }
 }
