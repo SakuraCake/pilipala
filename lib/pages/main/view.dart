@@ -125,57 +125,141 @@ class _MainAppState extends State<MainApp> with SingleTickerProviderStateMixin {
         MediaQuery.sizeOf(context).width * 9 / 16;
     localCache.put('sheetHeight', sheetHeight);
     localCache.put('statusBarHeight', statusBarHeight);
+
+    final double screenWidth = MediaQuery.of(context).size.width;
+    final bool isWideScreen = screenWidth > 600; // 宽屏阈值
+
     return PopScope(
       canPop: false,
       onPopInvoked: (bool didPop) async {
         _mainController.onBackPressed(context);
       },
       child: Scaffold(
-        extendBody: true,
-        body: Stack(
-          children: [
-            if (_mainController.enableGradientBg)
-              Align(
-                alignment: Alignment.topLeft,
-                child: Opacity(
-                  opacity: Theme.of(context).brightness == Brightness.dark
-                      ? 0.3
-                      : 0.6,
-                  child: Container(
-                    width: MediaQuery.of(context).size.width,
-                    height: MediaQuery.of(context).size.height,
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                          colors: [
-                            Theme.of(context)
-                                .colorScheme
-                                .primary
-                                .withOpacity(0.7),
-                            Theme.of(context).colorScheme.surface,
-                            Theme.of(context)
-                                .colorScheme
-                                .surface
-                                .withOpacity(0.3),
-                          ],
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                          stops: const [0.1, 0.3, 5]),
+        extendBody: !isWideScreen, // 宽屏时不需要延伸Body
+        body: isWideScreen
+            ? Row(
+                children: [
+                  // 侧边栏
+                  NavigationRail(
+                    backgroundColor: Colors.transparent,
+                    selectedIndex: _mainController.selectedIndex,
+                    onDestinationSelected: (value) => setIndex(value),
+                    labelType: NavigationRailLabelType.all,
+                    destinations: _mainController.navigationBars.map((e) {
+                      return NavigationRailDestination(
+                        icon: Badge(
+                          label: _mainController.dynamicBadgeType.value ==
+                                  DynamicBadgeMode.number
+                              ? Text(e['count'].toString())
+                              : null,
+                          padding: const EdgeInsets.fromLTRB(6, 0, 6, 0),
+                          isLabelVisible:
+                              _mainController.dynamicBadgeType.value !=
+                                      DynamicBadgeMode.hidden &&
+                                  e['count'] > 0,
+                          child: e['icon'],
+                        ),
+                        selectedIcon: e['selectIcon'],
+                        label: Text(e['label']),
+                      );
+                    }).toList(),
+                  ),
+                  const VerticalDivider(thickness: 1, width: 1),
+                  // 主内容区域
+                  Expanded(
+                    child: Stack(
+                      children: [
+                        if (_mainController.enableGradientBg)
+                          Align(
+                            alignment: Alignment.topLeft,
+                            child: Opacity(
+                              opacity: Theme.of(context).brightness ==
+                                      Brightness.dark
+                                  ? 0.3
+                                  : 0.6,
+                              child: Container(
+                                width: double.infinity,
+                                height: double.infinity,
+                                decoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                      colors: [
+                                        Theme.of(context)
+                                            .colorScheme
+                                            .primary
+                                            .withOpacity(0.7),
+                                        Theme.of(context).colorScheme.surface,
+                                        Theme.of(context)
+                                            .colorScheme
+                                            .surface
+                                            .withOpacity(0.3),
+                                      ],
+                                      begin: Alignment.topCenter,
+                                      end: Alignment.bottomCenter,
+                                      stops: const [0.1, 0.3, 5]),
+                                ),
+                              ),
+                            ),
+                          ),
+                        PageView(
+                          physics: const NeverScrollableScrollPhysics(),
+                          controller: _mainController.pageController,
+                          onPageChanged: (index) {
+                            _mainController.selectedIndex = index;
+                            setState(() {});
+                          },
+                          children: _mainController.pages,
+                        ),
+                      ],
                     ),
                   ),
-                ),
+                ],
+              )
+            : Stack(
+                children: [
+                  if (_mainController.enableGradientBg)
+                    Align(
+                      alignment: Alignment.topLeft,
+                      child: Opacity(
+                        opacity: Theme.of(context).brightness == Brightness.dark
+                            ? 0.3
+                            : 0.6,
+                        child: Container(
+                          width: MediaQuery.of(context).size.width,
+                          height: MediaQuery.of(context).size.height,
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                                colors: [
+                                  Theme.of(context)
+                                      .colorScheme
+                                      .primary
+                                      .withOpacity(0.7),
+                                  Theme.of(context).colorScheme.surface,
+                                  Theme.of(context)
+                                      .colorScheme
+                                      .surface
+                                      .withOpacity(0.3),
+                                ],
+                                begin: Alignment.topCenter,
+                                end: Alignment.bottomCenter,
+                                stops: const [0.1, 0.3, 5]),
+                          ),
+                        ),
+                      ),
+                    ),
+                  PageView(
+                    physics: const NeverScrollableScrollPhysics(),
+                    controller: _mainController.pageController,
+                    onPageChanged: (index) {
+                      _mainController.selectedIndex = index;
+                      setState(() {});
+                    },
+                    children: _mainController.pages,
+                  ),
+                ],
               ),
-            PageView(
-              physics: const NeverScrollableScrollPhysics(),
-              controller: _mainController.pageController,
-              onPageChanged: (index) {
-                _mainController.selectedIndex = index;
-                setState(() {});
-              },
-              children: _mainController.pages,
-            ),
-          ],
-        ),
-        bottomNavigationBar: _mainController.navigationBars.length > 1
+        // 窄屏时显示底部导航栏
+        bottomNavigationBar: !isWideScreen &&
+                _mainController.navigationBars.length > 1
             ? StreamBuilder(
                 stream: _mainController.hideTabBar
                     ? _mainController.bottomBarStream.stream.distinct()

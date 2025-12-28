@@ -63,12 +63,16 @@ class BangumiController extends GetxController {
 
   // 返回顶部并刷新
   void animateToTop() async {
-    if (scrollController.offset >=
-        MediaQuery.of(Get.context!).size.height * 5) {
-      scrollController.jumpTo(0);
-    } else {
-      await scrollController.animateTo(0,
-          duration: const Duration(milliseconds: 500), curve: Curves.easeInOut);
+    // 检查滚动控制器是否已附加到滚动视图上
+    if (scrollController.hasClients) {
+      if (scrollController.offset >=
+          MediaQuery.of(Get.context!).size.height * 5) {
+        scrollController.jumpTo(0);
+      } else {
+        await scrollController.animateTo(0,
+            duration: const Duration(milliseconds: 500),
+            curve: Curves.easeInOut);
+      }
     }
   }
 }

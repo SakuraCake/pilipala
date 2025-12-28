@@ -2,12 +2,13 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
+import 'package:pilipala/common/constants.dart';
 import 'package:pilipala/http/video.dart';
 import 'package:pilipala/models/home/rcmd/result.dart';
 import 'package:pilipala/models/model_rec_video_item.dart';
 import 'package:pilipala/utils/storage.dart';
 
-class RcmdController extends GetxController {
+class RcmdController extends GetxController with WidgetsBindingObserver {
   final ScrollController scrollController = ScrollController();
   int _currentPage = 0;
   // RxList<RecVideoItemAppModel> appVideoList = <RecVideoItemAppModel>[].obs;
@@ -23,8 +24,12 @@ class RcmdController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    crossAxisCount.value =
-        setting.get(SettingBoxKey.customRows, defaultValue: 2);
+    // 监听窗口大小变化
+    WidgetsBinding.instance.addObserver(this);
+
+    // 初始计算列数
+    calculateCrossAxisCount();
+
     enableSaveLastData =
         setting.get(SettingBoxKey.enableSaveLastData, defaultValue: false);
     defaultRcmdType =
@@ -34,6 +39,35 @@ class RcmdController extends GetxController {
     } else {
       videoList = <RecVideoItemAppModel>[].obs;
     }
+  }
+
+  @override
+  void onClose() {
+    // 移除窗口大小监听
+    WidgetsBinding.instance.removeObserver(this);
+    super.onClose();
+  }
+
+  @override
+  void didChangeMetrics() {
+    // 窗口大小变化时重新计算列数
+    calculateCrossAxisCount();
+  }
+
+  // 根据窗口宽度动态计算列数
+  void calculateCrossAxisCount() {
+    double screenWidth = Get.size.width;
+    // 减去两侧安全间距
+    double availableWidth = screenWidth - (StyleString.safeSpace * 2);
+
+    // 基础列宽
+    double baseColumnWidth = 200;
+
+    // 根据可用宽度计算列数，至少2列，最多6列
+    int calculatedColumns = (availableWidth / baseColumnWidth).floor();
+    calculatedColumns = calculatedColumns.clamp(2, 6);
+
+    crossAxisCount.value = calculatedColumns;
   }
 
   // 获取推荐
@@ -99,12 +133,16 @@ class RcmdController extends GetxController {
 
   // 返回顶部
   void animateToTop() async {
-    if (scrollController.offset >=
-        MediaQuery.of(Get.context!).size.height * 5) {
-      scrollController.jumpTo(0);
-    } else {
-      await scrollController.animateTo(0,
-          duration: const Duration(milliseconds: 500), curve: Curves.easeInOut);
+    // 检查滚动控制器是否已附加到滚动视图上
+    if (scrollController.hasClients) {
+      if (scrollController.offset >=
+          MediaQuery.of(Get.context!).size.height * 5) {
+        scrollController.jumpTo(0);
+      } else {
+        await scrollController.animateTo(0,
+            duration: const Duration(milliseconds: 500),
+            curve: Curves.easeInOut);
+      }
     }
   }
 
