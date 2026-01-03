@@ -222,7 +222,7 @@ class BuildMainApp extends StatelessWidget {
     );
 
     return GetMaterialApp(
-      title: 'PiliPala',
+      title: 'SakuraPili',
       theme: ThemeData(
         colorScheme: currentThemeValue == ThemeType.dark
             ? darkColorScheme

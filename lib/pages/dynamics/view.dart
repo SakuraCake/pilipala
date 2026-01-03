@@ -121,62 +121,42 @@ class _DynamicsPageState extends State<DynamicsPage>
                     () => _dynamicsController.userLogin.value
                         ? Visibility(
                             visible: _dynamicsController.mid.value == -1,
-                            child: Theme(
-                              data: ThemeData(
-                                splashColor:
-                                    Colors.transparent, // 点击时的水波纹颜色设置为透明
-                                highlightColor:
-                                    Colors.transparent, // 点击时的背景高亮颜色设置为透明
-                              ),
-                              child: CustomSlidingSegmentedControl<int>(
-                                initialValue:
-                                    _dynamicsController.initialValue.value,
-                                children: {
-                                  0: Text(
-                                    '全部',
-                                    style: TextStyle(
-                                        fontSize: Theme.of(context)
-                                            .textTheme
-                                            .labelMedium!
-                                            .fontSize),
-                                  ),
-                                  1: Text('投稿',
-                                      style: TextStyle(
-                                          fontSize: Theme.of(context)
-                                              .textTheme
-                                              .labelMedium!
-                                              .fontSize)),
-                                  2: Text('番剧',
-                                      style: TextStyle(
-                                          fontSize: Theme.of(context)
-                                              .textTheme
-                                              .labelMedium!
-                                              .fontSize)),
-                                  3: Text('专栏',
-                                      style: TextStyle(
-                                          fontSize: Theme.of(context)
-                                              .textTheme
-                                              .labelMedium!
-                                              .fontSize)),
-                                },
-                                padding: 13.0,
-                                decoration: BoxDecoration(
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .surfaceVariant
-                                      .withOpacity(0.7),
-                                  borderRadius: BorderRadius.circular(20),
+                            child: SegmentedButton<int>(
+                              segments: [
+                                ButtonSegment<int>(
+                                  value: 0,
+                                  label: Text('全部'),
                                 ),
-                                thumbDecoration: BoxDecoration(
-                                  color: Theme.of(context).colorScheme.surface,
-                                  borderRadius: BorderRadius.circular(20),
+                                ButtonSegment<int>(
+                                  value: 1,
+                                  label: Text('投稿'),
                                 ),
-                                duration: const Duration(milliseconds: 300),
-                                curve: Curves.easeInOut,
-                                onValueChanged: (v) {
-                                  feedBack();
-                                  _dynamicsController.onSelectType(v);
-                                },
+                                ButtonSegment<int>(
+                                  value: 2,
+                                  label: Text('番剧'),
+                                ),
+                                ButtonSegment<int>(
+                                  value: 3,
+                                  label: Text('专栏'),
+                                ),
+                              ],
+                              selected: <int>{
+                                _dynamicsController.initialValue.value
+                              },
+                              onSelectionChanged: (Set<int> newSelection) {
+                                feedBack();
+                                _dynamicsController
+                                    .onSelectType(newSelection.first);
+                              },
+                              style: ButtonStyle(
+                                padding: MaterialStateProperty.all(
+                                  const EdgeInsets.symmetric(
+                                      horizontal: 16, vertical: 8),
+                                ),
+                                textStyle: MaterialStateProperty.all(
+                                  Theme.of(context).textTheme.labelMedium,
+                                ),
+                                visualDensity: VisualDensity.compact,
                               ),
                             ),
                           )

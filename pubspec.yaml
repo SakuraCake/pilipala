@@ -66,6 +66,8 @@ dependencies:
   webview_cookie_manager: ^2.0.6
   # 浏览器
   webview_flutter: ^4.8.0
+  # windows webview support
+  webview_windows: ^0.3.0
   # 解决sliver滑动不同步
   extended_nested_scroll_view: ^6.2.1
   # 上拉加载

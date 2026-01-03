@@ -33,7 +33,7 @@ class _ReplySaveState extends State<ReplySave> {
       final result = await SaverGallery.saveImage(
         Uint8List.fromList(pngBytes),
         name: '$picName.png',
-        androidRelativePath: "Pictures/PiliPala",
+        androidRelativePath: "Pictures/SakuraPili",
         androidExistNotSave: false,
       );
       if (result.isSuccess) {
@@ -61,7 +61,7 @@ class _ReplySaveState extends State<ReplySave> {
         child: Transform.rotate(
           angle: pi / 10,
           child: const Text(
-            'PiliPala',
+            'SakuraPili',
             style: TextStyle(
               color: Color(0x08000000),
               fontSize: 18,

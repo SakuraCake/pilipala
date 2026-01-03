@@ -3,13 +3,16 @@ import 'package:pilipala/http/init.dart';
 import 'package:pilipala/utils/event_bus.dart';
 import 'package:pilipala/utils/id_utils.dart';
 import 'package:pilipala/utils/login.dart';
-import 'package:webview_flutter/webview_flutter.dart';
+import 'package:universal_platform/universal_platform.dart';
+
+// 仅在非Windows平台导入webview_flutter
+import 'package:webview_flutter/webview_flutter.dart' if (dart.library.html) '';
 
 class WebviewController extends GetxController {
   String url = '';
   RxString type = ''.obs;
   String pageTitle = '';
-  final WebViewController controller = WebViewController();
+  WebViewController? controller;
   RxInt loadProgress = 0.obs;
   RxBool loadShow = true.obs;
   EventBus eventBus = EventBus();
@@ -17,20 +20,31 @@ class WebviewController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    url = Get.parameters['url']!;
-    type.value = Get.parameters['type']!;
-    pageTitle = Get.parameters['pageTitle']!;
+    url = Get.parameters['url'] ?? '';
+    type.value = Get.parameters['type'] ?? '';
+    pageTitle = Get.parameters['pageTitle'] ?? '';
 
-    if (type.value == 'login') {
-      controller.clearCache();
-      controller.clearLocalStorage();
-      WebViewCookieManager().clearCookies();
+    // 仅在非Windows平台初始化WebViewController
+    if (!UniversalPlatform.isWindows) {
+      controller = WebViewController();
+      if (type.value == 'login') {
+        controller?.clearCache();
+        controller?.clearLocalStorage();
+        // 注意：WebViewCookieManager在Windows平台上不支持，已移除相关导入
+        // 仅在非Windows平台手动导入和使用webview_cookie_manager
+        // 由于Dart不支持动态导入，我们暂时注释掉这段代码
+        // 如果需要，可以在非Windows平台的特定文件中实现
+      }
+      webviewInit();
     }
-    webviewInit();
   }
 
   webviewInit() {
-    controller
+    if (controller == null || UniversalPlatform.isWindows) {
+      return;
+    }
+
+    controller!
       ..setUserAgent(Request().headerUa())
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
       ..setNavigationDelegate(
@@ -65,7 +79,7 @@ class WebviewController extends GetxController {
                 (url.startsWith(
                         'https://passport.bilibili.com/web/sso/exchange_cookie') ||
                     url.startsWith('https://m.bilibili.com/'))) {
-              LoginUtils.confirmLogin(url, controller);
+              LoginUtils.confirmLogin(url, controller!);
             }
           },
           onWebResourceError: (WebResourceError error) {},

@@ -44,114 +44,139 @@ class _MediaPageState extends State<MediaPage>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    Color primary = Theme.of(context).colorScheme.primary;
+    ColorScheme colorScheme = Theme.of(context).colorScheme;
     return Scaffold(
-      appBar: AppBar(toolbarHeight: 30),
+      appBar: AppBar(
+        title: Text('媒体库',
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.w600,
+                )),
+        elevation: 0,
+        backgroundColor: colorScheme.surface,
+        foregroundColor: colorScheme.onSurface,
+      ),
       body: SingleChildScrollView(
         controller: mediaController.scrollController,
-        child: Column(
-          children: [
-            ListTile(
-              leading: null,
-              title: Padding(
-                padding: const EdgeInsets.only(left: 20),
-                child: Text(
-                  '媒体库',
-                  style: TextStyle(
-                    fontSize: Theme.of(context).textTheme.titleLarge!.fontSize,
-                    fontWeight: FontWeight.bold,
-                  ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: Column(
+            children: [
+              // 媒体库快捷入口
+              Container(
+                decoration: BoxDecoration(
+                  color: colorScheme.surfaceVariant,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Column(
+                  children: [
+                    for (int index = 0;
+                        index < mediaController.list.length;
+                        index++) ...[
+                      ListTile(
+                        onTap: () => mediaController.list[index]['onTap'](),
+                        dense: false,
+                        leading: Icon(
+                          mediaController.list[index]['icon'],
+                          color: colorScheme.primary,
+                          size: 24,
+                        ),
+                        contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 8),
+                        minLeadingWidth: 0,
+                        title: Text(
+                          mediaController.list[index]['title'],
+                          style:
+                              Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                    fontSize: 16,
+                                  ),
+                        ),
+                        trailing: Icon(
+                          Icons.chevron_right_outlined,
+                          color: colorScheme.onSurfaceVariant,
+                          size: 20,
+                        ),
+                      ),
+                      if (index < mediaController.list.length - 1) ...[
+                        Divider(
+                          height: 1,
+                          thickness: 1,
+                          indent: 48,
+                          endIndent: 16,
+                          color: colorScheme.outline.withOpacity(0.1),
+                        ),
+                      ],
+                    ],
+                  ],
                 ),
               ),
-            ),
-            for (var i in mediaController.list) ...[
-              ListTile(
-                onTap: () => i['onTap'](),
-                dense: true,
-                leading: Padding(
-                  padding: const EdgeInsets.only(left: 15),
-                  child: Icon(
-                    i['icon'],
-                    color: primary,
-                  ),
-                ),
-                contentPadding:
-                    const EdgeInsets.only(left: 15, top: 2, bottom: 2),
-                minLeadingWidth: 0,
-                title: Text(
-                  i['title'],
-                  style: const TextStyle(fontSize: 15),
-                ),
-              ),
+              const SizedBox(height: 24),
+              // 收藏夹部分
+              Obx(() => mediaController.userLogin.value
+                  ? favFolder(mediaController, context)
+                  : const SizedBox()),
+              SizedBox(
+                height: MediaQuery.of(context).padding.bottom +
+                    kBottomNavigationBarHeight,
+              )
             ],
-            Obx(() => mediaController.userLogin.value
-                ? favFolder(mediaController, context)
-                : const SizedBox()),
-            SizedBox(
-              height: MediaQuery.of(context).padding.bottom +
-                  kBottomNavigationBarHeight,
-            )
-          ],
+          ),
         ),
       ),
     );
   }
 
   Widget favFolder(mediaController, context) {
+    ColorScheme colorScheme = Theme.of(context).colorScheme;
     return Column(
       children: [
-        Divider(
-          height: 35,
-          color: Theme.of(context).dividerColor.withOpacity(0.1),
-        ),
-        ListTile(
-          onTap: () => Get.toNamed('/fav'),
-          leading: null,
-          dense: true,
-          title: Padding(
-            padding: const EdgeInsets.only(left: 10),
-            child: Obx(
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Obx(
               () => Text.rich(
                 TextSpan(
                   children: [
                     TextSpan(
-                      text: '收藏夹 ',
-                      style: TextStyle(
-                          fontSize:
-                              Theme.of(context).textTheme.titleMedium!.fontSize,
-                          fontWeight: FontWeight.bold),
+                      text: '收藏夹',
+                      style: Theme.of(context)
+                          .textTheme
+                          .titleMedium
+                          ?.copyWith(fontWeight: FontWeight.w600),
                     ),
                     if (mediaController.favFolderData.value.count != null)
                       TextSpan(
-                        text: mediaController.favFolderData.value.count
-                            .toString(),
-                        style: TextStyle(
-                          fontSize:
-                              Theme.of(context).textTheme.titleSmall!.fontSize,
-                          color: Theme.of(context).colorScheme.primary,
-                        ),
+                        text: ' (${mediaController.favFolderData.value.count})',
+                        style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                              color: colorScheme.primary,
+                            ),
                       ),
                   ],
                 ),
               ),
             ),
-          ),
-          trailing: IconButton(
-            onPressed: () {
-              setState(() {
-                _futureBuilderFuture = mediaController.queryFavFolder();
-              });
-            },
-            icon: const Icon(
-              Icons.refresh,
-              size: 20,
+            IconButton(
+              onPressed: () {
+                setState(() {
+                  _futureBuilderFuture = mediaController.queryFavFolder();
+                });
+              },
+              icon: Icon(
+                Icons.refresh_outlined,
+                size: 20,
+                color: colorScheme.onSurfaceVariant,
+              ),
+              style: IconButton.styleFrom(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
             ),
-          ),
+          ],
         ),
-        // const SizedBox(height: 10),
+        const SizedBox(height: 12),
         SizedBox(
           width: double.infinity,
-          height: MediaQuery.textScalerOf(context).scale(200),
+          height: 200,
           child: FutureBuilder(
               future: _futureBuilderFuture,
               builder: (context, snapshot) {
@@ -174,28 +199,34 @@ class _MediaPageState extends State<MediaPage>
                             if (flag && index == favFolderList.length) {
                               return Padding(
                                   padding: const EdgeInsets.only(
-                                      right: 14, bottom: 35),
-                                  child: Center(
-                                    child: IconButton(
-                                      style: ButtonStyle(
-                                        padding: MaterialStateProperty.all(
-                                            EdgeInsets.zero),
-                                        backgroundColor:
-                                            MaterialStateProperty.resolveWith(
-                                                (states) {
-                                          return Theme.of(context)
-                                              .colorScheme
-                                              .primaryContainer
-                                              .withOpacity(0.5);
-                                        }),
-                                      ),
-                                      onPressed: () => Get.toNamed('/fav'),
-                                      icon: Icon(
-                                        Icons.arrow_forward_ios,
-                                        size: 18,
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .primary,
+                                      right: 8, bottom: 8),
+                                  child: Material(
+                                    color: colorScheme.surfaceVariant,
+                                    borderRadius: BorderRadius.circular(12),
+                                    child: InkWell(
+                                      onTap: () => Get.toNamed('/fav'),
+                                      borderRadius: BorderRadius.circular(12),
+                                      child: SizedBox(
+                                        width: 180,
+                                        height: 150,
+                                        child: Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            Icon(
+                                              Icons.arrow_forward_ios,
+                                              size: 24,
+                                              color: colorScheme.primary,
+                                            ),
+                                            const SizedBox(height: 8),
+                                            Text(
+                                              '查看全部',
+                                              style: Theme.of(context)
+                                                  .textTheme
+                                                  .bodyMedium,
+                                            ),
+                                          ],
+                                        ),
                                       ),
                                     ),
                                   ));
@@ -211,7 +242,15 @@ class _MediaPageState extends State<MediaPage>
                   } else {
                     return SizedBox(
                       height: 160,
-                      child: Center(child: Text(data['msg'])),
+                      child: Center(
+                        child: Text(
+                          data['msg'],
+                          style:
+                              Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                    color: colorScheme.onSurfaceVariant,
+                                  ),
+                        ),
+                      ),
                     );
                   }
                 } else {
@@ -232,63 +271,83 @@ class FavFolderItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     String heroTag = Utils.makeHeroTag(item!.fid);
+    ColorScheme colorScheme = Theme.of(context).colorScheme;
 
     return Container(
-      margin: EdgeInsets.only(left: index == 0 ? 20 : 0, right: 14),
-      child: GestureDetector(
-        onTap: () => Get.toNamed('/favDetail', arguments: item, parameters: {
-          'mediaId': item!.id.toString(),
-          'heroTag': heroTag,
-          'isOwner': '1',
-        }),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: 12),
-            Container(
-              width: 180,
-              height: 110,
-              margin: const EdgeInsets.only(bottom: 8),
-              clipBehavior: Clip.hardEdge,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12),
-                color: Theme.of(context).colorScheme.onInverseSurface,
-                boxShadow: [
-                  BoxShadow(
-                    color: Theme.of(context).colorScheme.onInverseSurface,
-                    offset: const Offset(4, -12), // 阴影与容器的距离
-                    blurRadius: 0.0, // 高斯的标准偏差与盒子的形状卷积。
-                    spreadRadius: 0.0, // 在应用模糊之前，框应该膨胀的量。
-                  ),
-                ],
-              ),
-              child: LayoutBuilder(
-                builder: (context, BoxConstraints box) {
-                  return Hero(
-                    tag: heroTag,
-                    child: NetworkImgLayer(
-                      src: item!.cover,
-                      width: box.maxWidth,
-                      height: box.maxHeight,
+      margin: EdgeInsets.only(left: index == 0 ? 0 : 8, right: 8, bottom: 8),
+      child: Material(
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        color: colorScheme.surface,
+        child: InkWell(
+          onTap: () => Get.toNamed('/favDetail', arguments: item, parameters: {
+            'mediaId': item!.id.toString(),
+            'heroTag': heroTag,
+            'isOwner': '1',
+          }),
+          borderRadius: BorderRadius.circular(12),
+          child: SizedBox(
+            width: 180,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  width: 180,
+                  height: 110,
+                  clipBehavior: Clip.hardEdge,
+                  decoration: BoxDecoration(
+                    borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(12),
+                      topRight: Radius.circular(12),
                     ),
-                  );
-                },
-              ),
+                    color: colorScheme.surfaceVariant,
+                  ),
+                  child: LayoutBuilder(
+                    builder: (context, BoxConstraints box) {
+                      return Hero(
+                        tag: heroTag,
+                        child: NetworkImgLayer(
+                          src: item!.cover,
+                          width: box.maxWidth,
+                          height: box.maxHeight,
+                        ),
+                      );
+                    },
+                  ),
+                ),
+                Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        item!.title ?? '未命名收藏夹',
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              fontWeight: FontWeight.w500,
+                              fontSize: 14,
+                            ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        '共${item!.mediaCount}条视频',
+                        style: Theme.of(context)
+                            .textTheme
+                            .labelSmall!
+                            .copyWith(color: colorScheme.onSurfaceVariant),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
-            Text(
-              ' ${item!.title}',
-              overflow: TextOverflow.fade,
-              maxLines: 1,
-            ),
-            Text(
-              ' 共${item!.mediaCount}条视频',
-              style: Theme.of(context)
-                  .textTheme
-                  .labelSmall!
-                  .copyWith(color: Theme.of(context).colorScheme.outline),
-            )
-          ],
+          ),
         ),
       ),
     );

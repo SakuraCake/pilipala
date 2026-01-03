@@ -49,8 +49,7 @@ class _HomePageState extends State<HomePage>
     super.build(context);
     return Scaffold(
       extendBody: true,
-      extendBodyBehindAppBar: true,
-      backgroundColor: Colors.transparent,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(
         toolbarHeight: 0,
         elevation: 0,
@@ -81,33 +80,48 @@ class _HomePageState extends State<HomePage>
             ] else ...[
               Container(
                 width: double.infinity,
-                height: 42,
-                padding: const EdgeInsets.only(top: 4),
-                child: Align(
-                  alignment: Alignment.center,
-                  child: TabBar(
-                    controller: _homeController.tabController,
-                    tabs: [
-                      for (var i in _homeController.tabs) Tab(text: i['label'])
-                    ],
-                    isScrollable: true,
-                    dividerColor: Colors.transparent,
-                    enableFeedback: true,
-                    splashBorderRadius: BorderRadius.circular(10),
-                    tabAlignment: TabAlignment.center,
-                    onTap: (value) {
-                      feedBack();
-                      if (_homeController.initialIndex.value == value) {
-                        _homeController.tabsCtrList[value]().animateToTop();
-                      }
-                      _homeController.initialIndex.value = value;
-                    },
-                  ),
+                height: 52,
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                color: Theme.of(context).colorScheme.surface,
+                child: TabBar(
+                  controller: _homeController.tabController,
+                  tabs: [
+                    for (var i in _homeController.tabs) Tab(text: i['label'])
+                  ],
+                  isScrollable: true,
+                  dividerColor: Colors.transparent,
+                  enableFeedback: true,
+                  splashBorderRadius: BorderRadius.circular(16),
+                  tabAlignment: TabAlignment.start,
+                  indicatorColor: Theme.of(context).colorScheme.primary,
+                  indicatorSize: TabBarIndicatorSize.tab,
+                  indicatorWeight: 3,
+                  unselectedLabelStyle: Theme.of(context)
+                      .textTheme
+                      .bodyMedium
+                      ?.copyWith(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
+                  labelStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        fontWeight: FontWeight.w500,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                  labelColor: Theme.of(context).colorScheme.primary,
+                  unselectedLabelColor:
+                      Theme.of(context).colorScheme.onSurfaceVariant,
+                  onTap: (value) {
+                    feedBack();
+                    if (_homeController.initialIndex.value == value) {
+                      _homeController.tabsCtrList[value]().animateToTop();
+                    }
+                    _homeController.initialIndex.value = value;
+                  },
                 ),
               ),
             ],
           ] else ...[
-            const SizedBox(height: 6),
+            const SizedBox(height: 8),
           ],
           Expanded(
             child: TabBarView(
@@ -216,13 +230,16 @@ class UserInfoWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        SearchBar(ctr: ctr),
+        CustomSearchBar(ctr: ctr),
         if (userLogin.value) ...[
           const SizedBox(width: 4),
-          ClipRect(
-            child: IconButton(
-              onPressed: () => Get.toNamed('/whisper'),
-              icon: const Icon(Icons.notifications_none),
+          IconButton(
+            onPressed: () => Get.toNamed('/whisper'),
+            icon: const Icon(Icons.notifications_none),
+            style: IconButton.styleFrom(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(50),
+              ),
             ),
           )
         ],
@@ -243,25 +260,21 @@ class DefaultUser extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: 38,
-      height: 38,
-      child: IconButton(
-        style: ButtonStyle(
-          padding: MaterialStateProperty.all(EdgeInsets.zero),
-          backgroundColor: MaterialStateProperty.resolveWith((states) {
-            return Theme.of(context)
-                .colorScheme
-                .onSecondaryContainer
-                .withOpacity(0.05);
-          }),
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
+    return IconButton(
+      style: IconButton.styleFrom(
+        backgroundColor: colorScheme.onSecondaryContainer.withOpacity(0.05),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(50),
         ),
-        onPressed: () => callback?.call(),
-        icon: Icon(
-          Icons.person_rounded,
-          size: 22,
-          color: Theme.of(context).colorScheme.primary,
-        ),
+        padding: EdgeInsets.zero,
+        minimumSize: const Size(38, 38),
+      ),
+      onPressed: () => callback?.call(),
+      icon: Icon(
+        Icons.person_rounded,
+        size: 22,
+        color: colorScheme.primary,
       ),
     );
   }
@@ -329,39 +342,36 @@ class CustomChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final ColorScheme colorTheme = Theme.of(context).colorScheme;
-    final Color secondaryContainer = colorTheme.secondaryContainer;
-    final Color onPrimary = colorTheme.onPrimary;
-    final Color primary = colorTheme.primary;
     final TextStyle chipTextStyle = selected
-        ? TextStyle(fontSize: 13, color: onPrimary)
-        : TextStyle(fontSize: 13, color: colorTheme.onSecondaryContainer);
-    const VisualDensity visualDensity =
-        VisualDensity(horizontal: -4.0, vertical: -2.0);
-    return InputChip(
-      side: BorderSide.none,
-      backgroundColor: secondaryContainer,
-      color: MaterialStateProperty.resolveWith((states) {
-        if (states.contains(MaterialState.selected) ||
-            states.contains(MaterialState.hovered)) {
-          return primary;
-        }
-        return colorTheme.secondaryContainer;
-      }),
-      padding: const EdgeInsets.fromLTRB(6, 1, 6, 1),
+        ? TextStyle(
+            fontSize: 13,
+            color: colorTheme.onPrimary,
+            fontWeight: FontWeight.w500,
+          )
+        : TextStyle(
+            fontSize: 13,
+            color: colorTheme.onSecondaryContainer,
+          );
+
+    return FilterChip(
       label: Text(label, style: chipTextStyle),
-      onPressed: () => onTap(),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(6),
-      ),
+      onSelected: (_) => onTap(),
       selected: selected,
       showCheckmark: false,
-      visualDensity: visualDensity,
+      backgroundColor: colorTheme.secondaryContainer,
+      selectedColor: colorTheme.primary,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      elevation: selected ? 1 : 0,
+      shadowColor: colorTheme.shadow,
     );
   }
 }
 
-class SearchBar extends StatelessWidget {
-  const SearchBar({
+class CustomSearchBar extends StatelessWidget {
+  const CustomSearchBar({
     Key? key,
     required this.ctr,
   }) : super(key: key);
@@ -372,41 +382,27 @@ class SearchBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
     return Expanded(
-      child: Container(
-        width: 250,
-        height: 44,
-        clipBehavior: Clip.hardEdge,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(25),
+      child: SearchBar(
+        onTap: () => Get.toNamed('/search',
+            parameters: {'hintText': ctr!.defaultSearch.value}),
+        hintText: ctr!.defaultSearch.value,
+        backgroundColor: MaterialStateProperty.all(
+          colorScheme.onSecondaryContainer.withOpacity(0.05),
         ),
-        child: Material(
-          color: colorScheme.onSecondaryContainer.withOpacity(0.05),
-          child: InkWell(
-            splashColor: colorScheme.primaryContainer.withOpacity(0.3),
-            onTap: () => Get.toNamed('/search',
-                parameters: {'hintText': ctr!.defaultSearch.value}),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 14),
-              child: Row(
-                children: [
-                  Icon(
-                    Icons.search_outlined,
-                    color: colorScheme.onSecondaryContainer,
-                  ),
-                  const SizedBox(width: 10),
-                  Obx(
-                    () => Text(
-                      ctr!.defaultSearch.value,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(color: colorScheme.outline),
-                    ),
-                  ),
-                ],
-              ),
-            ),
+        leading: Icon(
+          Icons.search_outlined,
+          color: colorScheme.onSecondaryContainer,
+        ),
+        shape: MaterialStateProperty.all(
+          RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(25),
           ),
         ),
+        padding: const MaterialStatePropertyAll<EdgeInsets>(
+          EdgeInsets.symmetric(horizontal: 14),
+        ),
+        elevation: MaterialStateProperty.all(0),
+        shadowColor: MaterialStateProperty.all(Colors.transparent),
       ),
     );
   }

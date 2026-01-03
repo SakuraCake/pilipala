@@ -5,9 +5,13 @@ import 'package:dio/dio.dart';
 import 'package:encrypt/encrypt.dart';
 import 'package:pilipala/http/constants.dart';
 import 'package:uuid/uuid.dart';
+import 'package:pilipala/services/loggeer.dart';
 import '../models/login/index.dart';
 import '../utils/login.dart';
 import 'index.dart';
+
+final logger = getLogger();
+const bool isDebug = true;
 
 class LoginHttp {
   static Future queryCaptcha() async {
@@ -150,7 +154,8 @@ class LoginHttp {
       Api.appSmsCode,
       data: data,
     );
-    print(res);
+    if (isDebug) logger.d('[LoginHttp] appSmsCode response: $res');
+    return res;
   }
 
   static String buvid() {

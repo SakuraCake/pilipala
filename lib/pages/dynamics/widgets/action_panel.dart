@@ -7,9 +7,14 @@ import 'package:pilipala/common/widgets/network_img_layer.dart';
 import 'package:pilipala/http/dynamics.dart';
 import 'package:pilipala/models/dynamics/result.dart';
 import 'package:pilipala/pages/dynamics/index.dart';
+import 'package:pilipala/services/loggeer.dart';
 import 'package:pilipala/utils/feed_back.dart';
 import 'package:status_bar_control/status_bar_control.dart';
+import 'package:universal_platform/universal_platform.dart';
 import 'rich_node_panel.dart';
+
+final logger = getLogger();
+const bool isDebug = true;
 
 class ActionPanel extends StatefulWidget {
   const ActionPanel({
@@ -54,7 +59,13 @@ class _ActionPanelState extends State<ActionPanel>
   }
 
   onInit() async {
-    statusHeight = await StatusBarControl.getHeight;
+    if (UniversalPlatform.isWindows) {
+      // Windows平台使用MediaQuery获取状态栏高度
+      statusHeight = MediaQuery.of(context).padding.top;
+    } else {
+      // 其他平台使用插件获取
+      statusHeight = await StatusBarControl.getHeight;
+    }
   }
 
   // 动态点赞
@@ -380,7 +391,7 @@ class _ActionPanelState extends State<ActionPanel>
     var color = Theme.of(context).colorScheme.outline;
     var primary = Theme.of(context).colorScheme.primary;
     height.value = defaultHeight;
-    print('height.value: ${height.value}');
+    if (isDebug) logger.d('height.value: ${height.value}');
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: [

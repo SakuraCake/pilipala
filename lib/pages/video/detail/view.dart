@@ -26,11 +26,11 @@ import 'package:pilipala/plugin/pl_player/models/play_repeat.dart';
 import 'package:pilipala/services/service_locator.dart';
 import 'package:pilipala/utils/storage.dart';
 import 'package:status_bar_control/status_bar_control.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 import '../../../plugin/pl_player/models/bottom_control_type.dart';
 import '../../../services/shutdown_timer_service.dart';
 import 'widgets/app_bar.dart';
-import 'widgets/header_control.dart';
 
 class VideoDetailPage extends StatefulWidget {
   const VideoDetailPage({Key? key}) : super(key: key);
@@ -219,7 +219,13 @@ class _VideoDetailPageState extends State<VideoDetailPage>
   }
 
   getStatusHeight() async {
-    statusHeight = await StatusBarControl.getHeight;
+    if (UniversalPlatform.isWindows) {
+      // Windows平台使用MediaQuery获取状态栏高度
+      statusHeight = MediaQuery.of(context).padding.top;
+    } else {
+      // 其他平台使用插件获取
+      statusHeight = await StatusBarControl.getHeight;
+    }
   }
 
   @override

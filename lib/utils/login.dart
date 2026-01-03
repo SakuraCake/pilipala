@@ -12,9 +12,13 @@ import 'package:pilipala/pages/dynamics/index.dart';
 import 'package:pilipala/pages/home/index.dart';
 import 'package:pilipala/pages/media/index.dart';
 import 'package:pilipala/pages/mine/index.dart';
+import 'package:pilipala/services/loggeer.dart';
 import 'package:pilipala/utils/cookie.dart';
 import 'package:pilipala/utils/storage.dart';
 import 'package:uuid/uuid.dart';
+
+final logger = getLogger();
+const bool isDebug = true; // 控制是否输出调试日志
 
 class LoginUtils {
   static Future refreshLoginStatus(bool status) async {
@@ -35,7 +39,9 @@ class LoginUtils {
       MediaController mediaCtr = Get.find<MediaController>();
       mediaCtr.userLogin.value = status;
     } catch (err) {
-      SmartDialog.showToast('refreshLoginStatus error: ${err.toString()}');
+      final errorMsg = 'refreshLoginStatus error: ${err.toString()}';
+      if (isDebug) logger.e(errorMsg);
+      SmartDialog.showToast(errorMsg);
     }
   }
 
@@ -73,7 +79,9 @@ class LoginUtils {
       await SetCookie.onSet();
       final result = await UserHttp.userInfo();
       if (result['status'] && result['data'].isLogin) {
-        SmartDialog.showToast('登录成功');
+        final successMsg = '登录成功';
+        if (isDebug) logger.d(successMsg);
+        SmartDialog.showToast(successMsg);
         try {
           Box userInfoCache = GStrorage.userInfo;
           if (!userInfoCache.isOpen) {
@@ -88,6 +96,8 @@ class LoginUtils {
           mediaCtr.mid = result['data'].mid;
           await LoginUtils.refreshLoginStatus(true);
         } catch (err) {
+          final errorMsg = '登录遇到问题: ${err.toString()}';
+          if (isDebug) logger.e(errorMsg);
           SmartDialog.show(builder: (BuildContext context) {
             return AlertDialog(
               title: const Text('登录遇到问题'),
@@ -106,12 +116,16 @@ class LoginUtils {
         Get.back();
       } else {
         // 获取用户信息失败
-        SmartDialog.showToast(result['msg']);
-        Clipboard.setData(ClipboardData(text: result['msg']));
+        final errorMsg = result['msg'];
+        if (isDebug) logger.w('[登录] 获取用户信息失败: $errorMsg');
+        SmartDialog.showToast(errorMsg);
+        Clipboard.setData(ClipboardData(text: errorMsg));
       }
     } catch (e) {
-      SmartDialog.showNotify(msg: e.toString(), notifyType: NotifyType.warning);
-      content = content + e.toString();
+      final errorMsg = e.toString();
+      if (isDebug) logger.e('[登录] 登录失败: $errorMsg');
+      SmartDialog.showNotify(msg: errorMsg, notifyType: NotifyType.warning);
+      content = content + errorMsg;
       Clipboard.setData(ClipboardData(text: content));
     }
   }

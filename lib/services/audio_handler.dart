@@ -11,7 +11,7 @@ Future<VideoPlayerServiceHandler> initAudioService() async {
     builder: () => VideoPlayerServiceHandler(),
     config: const AudioServiceConfig(
       androidNotificationChannelId: 'com.guozhigq.pilipala.audio',
-      androidNotificationChannelName: 'Audio Service Pilipala',
+      androidNotificationChannelName: 'Audio Service SakuraPili',
       androidNotificationOngoing: true,
       androidStopForegroundOnPause: true,
       fastForwardInterval: Duration(seconds: 10),

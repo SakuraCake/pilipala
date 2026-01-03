@@ -49,7 +49,7 @@ class _AboutPageState extends State<AboutPage> {
               width: 150,
             ),
             Text(
-              'PiliPala',
+              'SakuraPili',
               style: Theme.of(context).textTheme.titleMedium,
             ),
             const SizedBox(height: 6),
@@ -116,7 +116,14 @@ class _AboutPageState extends State<AboutPage> {
               onTap: () => _aboutController.githubUrl(),
               title: const Text('开源地址'),
               trailing: Text(
-                'github.com/guozhigq/pilipala',
+                'github.com/SakuraCake/pilipala',
+                style: subTitleStyle,
+              ),
+            ),
+            ListTile(
+              title: const Text('版权声明'),
+              subtitle: Text(
+                '原项目版权归 guozhigq 所有\n本项目为 SakuraCake 分叉版本',
                 style: subTitleStyle,
               ),
             ),
@@ -124,6 +131,7 @@ class _AboutPageState extends State<AboutPage> {
               onTap: () => _aboutController.webSiteUrl(),
               title: const Text('访问官网'),
               trailing: Text(
+                // TODO:修改信息
                 'https://pilipalanet.mysxl.cn',
                 style: subTitleStyle,
               ),

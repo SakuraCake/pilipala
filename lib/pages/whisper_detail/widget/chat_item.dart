@@ -60,11 +60,11 @@ class ChatItem extends StatelessWidget {
         item.senderUid == GStrorage.userInfo.get('userInfoCache').mid;
 
     bool isPic = item.msgType == MsgType.pic.value; // 图片
-    bool isText = item.msgType == MsgType.text.value; // 文本
+    // bool isText = item.msgType == MsgType.text.value; // 文本 (未使用)
     // bool isArchive = item.msgType == 11; // 投稿
     // bool isArticle = item.msgType == 12; // 专栏
     bool isRevoke = item.msgType == MsgType.revoke.value; // 撤回消息
-    bool isShareV2 = item.msgType == MsgType.share_v2.value;
+    // bool isShareV2 = item.msgType == MsgType.share_v2.value; // 未使用
     bool isSystem = item.msgType == MsgType.notify_text.value ||
         item.msgType == MsgType.notify_msg.value ||
         item.msgType == MsgType.pic_card.value ||

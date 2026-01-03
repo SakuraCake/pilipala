@@ -3,6 +3,10 @@ import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart';
 import 'package:pilipala/common/widgets/network_img_layer.dart';
 import 'package:pilipala/http/search.dart';
+import 'package:pilipala/services/loggeer.dart';
+
+final logger = getLogger();
+const bool isDebug = true;
 
 /// TODO 点击跳转
 Widget addWidget(item, context, type, {floor = 1}) {
@@ -40,7 +44,7 @@ Widget addWidget(item, context, type, {floor = 1}) {
               SmartDialog.showToast(err.toString());
             }
           } else {
-            print("No match found.");
+            if (isDebug) logger.d("No match found.");
           }
         },
         child: Container(

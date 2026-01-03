@@ -125,7 +125,10 @@ class _InteractiveviewerGalleryState extends State<InteractiveviewerGallery>
     _pageController!.dispose();
     _animationController.dispose();
     try {
-      StatusBarControl.setHidden(false, animation: StatusBarAnimation.FADE);
+      // 只在iOS和Android平台上调用StatusBarControl
+      if (Platform.isIOS || Platform.isAndroid) {
+        StatusBarControl.setHidden(false, animation: StatusBarAnimation.FADE);
+      }
     } catch (_) {}
     super.dispose();
   }

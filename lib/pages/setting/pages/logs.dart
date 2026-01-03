@@ -37,7 +37,7 @@ class _LogsPageState extends State<LogsPage> {
       return item
           .replaceAll(
               '============================== CATCHER 2 LOG ==============================',
-              'Pilipala错误日志 \n ********************')
+              'SakuraPili错误日志 \n ********************')
           .replaceAll('DEVICE INFO', '设备信息')
           .replaceAll('APP INFO', '应用信息')
           .replaceAll('ERROR', '错误信息')
